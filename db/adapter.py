@@ -29,7 +29,7 @@ class DbAdapter:
         return cursor.fetchall()
 
     def add_entity(self, vector: str, code: str, url: str):
-        if not isinstance(vector,str):
+        if not isinstance(vector, str):
             vector = str(vector)
         # Добавляем в SQLite
         cursor = self.functions_db.cursor()
