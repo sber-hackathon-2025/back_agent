@@ -27,7 +27,11 @@ class SimilarCodeAgent:
         self.target_type = target_type
 
     def detale_query(self, giga_client: GigaChat) -> None:
-        self.detailed_query = giga_client.chat(f"Опиши это в 10 предложениях: {self.query}").choices[0].message.content
+        self.detailed_query = (
+            giga_client.chat(f"Опиши это в 10 предложениях: {self.query}")
+            .choices[0]
+            .message.content
+        )
 
     def get_vector(self, giga_client: GigaChat) -> list[float]:
         response = giga_client.embeddings([self.detailed_query])
@@ -35,11 +39,12 @@ class SimilarCodeAgent:
 
     def find_candidates(self, get_candidates: list[float]) -> list[list[float]]: ...
 
-    def get_candidates(self, vectorized_candidates: list[list[float]]) -> list[Candidate]: ...
+    def get_candidates(
+        self, vectorized_candidates: list[list[float]]
+    ) -> list[Candidate]: ...
 
     def find_similar(self) -> (int, list[Candidate]):
         try:
-
             with GigaChat(credentials=GIGACRED, verify_ssl_certs=False) as giga_client:
                 self.detale_query(giga_client)
                 query_vector = self.get_vector(giga_client)
@@ -49,5 +54,5 @@ class SimilarCodeAgent:
             candidates: list[Candidate] = self.get_candidates(vectorized_candidates)
 
             return 200, candidates
-        except:
+        except Exception:
             return 400, []
