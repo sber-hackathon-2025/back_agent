@@ -1,0 +1,34 @@
+{
+    "provider": "gigachat",
+    "model": "GigaChat:latest",
+    "api_key": "",
+    "base_url": "https://gigachat-api.devices.sberbank.ru/api/v2",
+    "temperature": 0.7,
+    "max_tokens": 2000,
+    "functions": [
+        {
+            "name": "search_query",
+            "description": "Поиск информации по запросу пользователя",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Текст запроса для поиска"
+                    },
+                    "query_type": {
+                        "type": "string",
+                        "enum": ["jira", "bitbucket", "confluence", "all"],
+                        "description": "Тип поиска"
+                    },
+                    "target_type": {
+                        "type": "string",
+                        "enum": ["issue", "document", "code", "all"],
+                        "description": "Тип целевого объекта"
+                    }
+                },
+                "required": ["query", "query_type", "target_type"]
+            }
+        }
+    ]
+} 
