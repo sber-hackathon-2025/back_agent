@@ -3,13 +3,8 @@ from requests_pkcs12 import get
 
 # Базовые параметры
 base_url = "https://sberworks.ru/wiki/rest/api/"
-<<<<<<< HEAD
-username = "tuz_sbt_ci_hack"  # Ваш email в Atlassian
-password = "0EfW8PSD&vhzF1"  # Ваш PAT
-=======
 username = ""
 password = ""
->>>>>>> 17781b1b4f47da9787af068ed39ecf9a9f245e72
 
 # Настройки Confluence
 space_key = "ABRAU"  # Ключ пространства Confluence
