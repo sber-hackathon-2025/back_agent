@@ -1,26 +1,13 @@
+import argparse
 import os
-import sys
 from requests_pkcs12 import get
-
-
-# Базовые параметры
-base_url = "https://sberworks.ru/wiki/rest/api/"
-
-
-# Настройки Confluence
-space_key = "ABRAU"  # Ключ пространства Confluence
-
-
-# Путь к .p12 сертификату и пароль от него
-p12_cert_path = ""
-p12_password = ""
 
 # Путь для сохранения результатов
 output_dir = "confluence_pages"
 os.makedirs(output_dir, exist_ok=True)
 
 # Функция для получения всех страниц в пространстве
-def get_pages_in_space(space_key, base_url, username, api_token):
+def get_pages_in_space(space_key, base_url, username, password):
     url = f"{base_url}content"
     params = {
         "spaceKey": space_key,
@@ -34,8 +21,7 @@ def get_pages_in_space(space_key, base_url, username, api_token):
 
     while True:
         response = get(url, params=params, auth=(username, password), pkcs12_filename=p12_cert_path,
-                pkcs12_password=p12_password, verify=False)
-
+                       pkcs12_password=p12_password, verify=False)
 
         if response.status_code == 200:
             data = response.json()
@@ -54,6 +40,7 @@ def get_pages_in_space(space_key, base_url, username, api_token):
             break
 
     return all_pages
+
 
 # Функция для сохранения страниц в структурированном виде
 def save_page_to_file(page, space_key):
@@ -74,12 +61,14 @@ def save_page_to_file(page, space_key):
 
     print(f"Страница '{page_title}' сохранена в файл {file_path}")
 
+
 # Основная функция
-def download_confluence_pages(base_url, username, password):
+def download_confluence_pages(base_url, username, password, p12_cert_path, p12_password):
     # Получаем список пространств
     spaces_url = f"{base_url}space"
+
     params = {
-        "limit": 11,  # Максимальное количество пространств за один запрос
+        "limit": 10,  # Максимальное количество пространств за один запрос
         "start": 0
     }
 
@@ -87,7 +76,7 @@ def download_confluence_pages(base_url, username, password):
 
     while True:
         response = get(spaces_url, params=params, auth=(username, password), pkcs12_filename=p12_cert_path,
-                pkcs12_password=p12_password, verify=False)
+                       pkcs12_password=p12_password, verify=False)
 
         if response.status_code == 200:
             data = response.json()
@@ -115,6 +104,27 @@ def download_confluence_pages(base_url, username, password):
         for page in pages:
             save_page_to_file(page, space_key)
 
+
 # Вызов основной функции
 if __name__ == '__main__':
-    download_confluence_pages(base_url, sys.argv[1] , sys.argv[2])
+    # Базовые параметры
+    base_url = "https://sberworks.ru/wiki/rest/api/"
+
+    # Настройки Confluence
+    space_key = "ABRAU"  # Ключ пространства Confluence
+
+    # Путь к .p12 сертификату и пароль от него
+    p12_cert_path = ""
+    p12_password = ""
+
+    parser = argparse.ArgumentParser(description="Скрипт для скачивания Confluence.")
+    parser.add_argument("--url", required=True,
+                        help="Базовый URL до Confluence API (например, https://api.bitbucket.org/2.0)")
+    parser.add_argument("--username", required=True, help="Имя пользователя ")
+    parser.add_argument("--password", required=True, help="Пароль ")
+    parser.add_argument("--p12_cert_path", required=True, help="Путь к .p12 сертификату")
+    parser.add_argument("--p12_password", required=True, help="Пароль от .p12 сертификата")
+    parser.add_argument("--workspace", required=True, help="Имя рабочего пространства (workspace)")
+    args = parser.parse_args()
+
+    download_confluence_pages(base_url, args.username, args.password, args.p12_cert_path, args.p12_password)
