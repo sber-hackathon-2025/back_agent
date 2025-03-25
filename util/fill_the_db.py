@@ -1,9 +1,9 @@
 import json
 from collections import defaultdict
 
-from db.adapter import DbAdapter
+from db.adapter import DBAdapter
 
-a = DbAdapter()
+a = DBAdapter()
 a.init_db()
 try:
     vectors = defaultdict(dict)

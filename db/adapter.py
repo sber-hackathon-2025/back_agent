@@ -1,7 +1,8 @@
 import sqlite3
+from typing import Any
 
 
-class DbAdapter:
+class DBAdapter:
     def __init__(self):
         self.functions_db = sqlite3.connect("../db/functions.db")
 
@@ -18,7 +19,8 @@ class DbAdapter:
         """)
         self.functions_db.commit()
 
-    def get_by_vectors(self, vectors: list[str]) -> list[str]:
+    def get_by_vectors(self, vectors: list[str]) -> list[dict[str, Any]]:
+        vectors = [str(v) for v in vectors]
         # Получение кодов из SQLite
         cursor = self.functions_db.cursor()
         cursor.execute(
