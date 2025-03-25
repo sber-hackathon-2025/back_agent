@@ -1,22 +1,28 @@
+import os
 from enum import Enum
 from gigachat import GigaChat
+from dotenv import load_dotenv
 
-GIGACRED = "YzUzMGJmNjMtYzFhMi00ZTAzLWI2MzItMjRkNjVhOWI3N2I2OjI1ZTNkZGViLWQ3OWYtNDBkMS1hMWFmLWE4YWE1N2ViYTFiZA=="
+load_dotenv(override=True)
+
+GIGA_CREDS = os.getenv("GIGA_CREDS")
 
 
 class QueryTypeEnum(Enum):
     text = "text"
     code = "code"
+    all = "all"
 
 
 class TargetEnum(Enum):
     function = "function"
     object = "object"
     repository = "repository"
-    any = "any"
+    all = "all"
 
 
-class Candidate: ...
+class Candidate:
+    ...
 
 
 class SimilarCodeAgent:
@@ -26,8 +32,12 @@ class SimilarCodeAgent:
         self.query_type = query_type
         self.target_type = target_type
 
-    def detale_query(self, giga_client: GigaChat) -> None:
-        self.detailed_query = giga_client.chat(f"Опиши это в 10 предложениях: {self.query}").choices[0].message.content
+    def detail_query(self, giga_client: GigaChat) -> None:
+        self.detailed_query = (
+            giga_client.chat(f"Опиши это в 10 предложениях: {self.query}")
+            .choices[0]
+            .message.content
+        )
 
     def get_vector(self, giga_client: GigaChat) -> list[float]:
         response = giga_client.embeddings([self.detailed_query])
@@ -35,13 +45,14 @@ class SimilarCodeAgent:
 
     def find_candidates(self, get_candidates: list[float]) -> list[list[float]]: ...
 
-    def get_candidates(self, vectorized_candidates: list[list[float]]) -> list[Candidate]: ...
+    def get_candidates(
+        self, vectorized_candidates: list[list[float]]
+    ) -> list[Candidate]: ...
 
     def find_similar(self) -> (int, list[Candidate]):
         try:
-
-            with GigaChat(credentials=GIGACRED, verify_ssl_certs=False) as giga_client:
-                self.detale_query(giga_client)
+            with GigaChat(credentials=GIGA_CREDS, verify_ssl_certs=False) as giga_client:
+                self.detail_query(giga_client)
                 query_vector = self.get_vector(giga_client)
 
             vectorized_candidates = self.find_candidates(query_vector)
@@ -49,5 +60,5 @@ class SimilarCodeAgent:
             candidates: list[Candidate] = self.get_candidates(vectorized_candidates)
 
             return 200, candidates
-        except:
+        except Exception:
             return 400, []
